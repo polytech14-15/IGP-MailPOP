@@ -1,0 +1,35 @@
+From: Marc<CR><LF>
+To : user<CR><LF>
+Subject: Message 1<CR><LF>
+<CR><LF>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras ligula nunc,<CR><LF>
+commodo ut dolor et, sollicitudin rutrum libero. Sed ornare vitae lacus ut dictum<CR><LF>
+Vestibulum consectetur risus mauris<CR><LF>
+.<CR><LF>
+From : Jérémy<CR><LF>
+To : user<CR><LF>
+Subject: Message 2<CR><LF>
+<CR><LF>
+Suspendisse eleifend dui sed vulputate pulvinar. Donec nulla elit, <CR><LF>
+fringilla at lacus eget, blandit malesuada est<CR><LF>
+Cras tincidunt finibus consectetur<CR><LF>
+.<CR><LF>
+From : Anthony<CR><LF>
+To : user<CR><LF>
+Subject: Message 3<CR><LF>
+<CR><LF>
+Pellentesque ac odio aliquam, <CR><LF>
+dictum est at, porta massa. Vivamus <CR><LF>
+convallis posuere est, nec ullamcorper elit lobortis ut<CR><LF>
+.<CR><LF>
+From : Seb<CR><LF>
+To : user<CR><LF>
+Subject: Message 4<CR><LF>
+<CR><LF>
+Donec convallis bibendum metus maximus 
+<CR><LF>
+condimentum. Pellentesque accumsan justo 
+<CR><LF>
+id dui vehicula, vitae rhoncus urna laoreet
+<CR><LF>
+.<CR><LF>

@@ -1,21 +1,5 @@
 package client;
 
-import client.Client;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-
 public class ClientView extends javax.swing.JFrame {
 
     private Client Client;
