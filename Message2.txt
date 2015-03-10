@@ -1,1 +1,1 @@
-From : J�r�my<CR><LF>To : user<CR><LF>Subject: Message 2<CR><LF><CR><LF>Suspendisse eleifend dui sed vulputate pulvinar. Donec nulla elit, <CR><LF>fringilla at lacus eget, blandit malesuada est<CR><LF>Cras tincidunt finibus consectetur<CR><LF> 
+From : Jeremy<CR><LF>To : user<CR><LF>Subject: Message 2<CR><LF><CR><LF>Suspendisse eleifend dui sed vulputate pulvinar. Donec nulla elit, <CR><LF>fringilla at lacus eget, blandit malesuada est<CR><LF>Cras tincidunt finibus consectetur<CR><LF> 

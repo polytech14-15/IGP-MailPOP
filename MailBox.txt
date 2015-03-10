@@ -1,4 +1,4 @@
-From: Marc<CR><LF>
+﻿From: Marc<CR><LF>
 To : user<CR><LF>
 Subject: Message 1<CR><LF>
 <CR><LF>
@@ -6,7 +6,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit.Cras ligula nunc,<CR><LF
 commodo ut dolor et, sollicitudin rutrum libero. Sed ornare vitae lacus ut dictum<CR><LF>
 Vestibulum consectetur risus mauris<CR><LF>
 .<CR><LF>
-From : Jérémy<CR><LF>
+From : Jeremy<CR><LF>
 To : user<CR><LF>
 Subject: Message 2<CR><LF>
 <CR><LF>
