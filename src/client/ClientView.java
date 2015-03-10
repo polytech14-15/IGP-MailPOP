@@ -30,7 +30,7 @@ public class ClientView extends javax.swing.JFrame {
 
         jLabel1.setText("Adresse du serveur");
 
-        addressField.setText("127.0.0.1:1025");
+        addressField.setText("127.0.0.1:3500");
         addressField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addressFieldActionPerformed(evt);
