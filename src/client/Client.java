@@ -1,21 +1,19 @@
 package client;
 
-import com.sun.corba.se.spi.activation.Server;
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import server.Server;
 
 public class Client {
 
