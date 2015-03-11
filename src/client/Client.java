@@ -107,7 +107,7 @@ public class Client {
         } catch (SocketException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
-            System.out.println("kikou");
+            System.out.println("Err1");
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -189,7 +189,7 @@ public class Client {
             } catch (SocketException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             } catch (FileNotFoundException ex) {
-                System.out.println("kikou2");
+                System.out.println("Err2");
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
