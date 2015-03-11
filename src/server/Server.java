@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -12,6 +13,9 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.Pattern;
 
 public class Server extends Thread {
@@ -20,6 +24,10 @@ public class Server extends Thread {
 
         AUTHORIZATION, TRANSACTION, CLOSED
     };
+    
+    Logger logger;  
+    FileHandler fh;  
+    
     final static int port = 3500;
     private static Socket socket;
     private Statut statut = Statut.AUTHORIZATION;
@@ -54,6 +62,20 @@ public class Server extends Thread {
 
     public Server(Socket socket) {
         this.socket = socket;
+        this.logger = Logger.getLogger("MyLog");
+        
+        try {  
+            // This block configure the logger with handler and formatter  
+            fh = new FileHandler("U:\\MyLogFile.log");  
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();  
+            fh.setFormatter(formatter);  
+
+        } catch (SecurityException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
     }
 
     //fonction de lecture de fichier 
@@ -156,6 +178,7 @@ public class Server extends Thread {
             //Connexion avec le client
             String commande = "";
             System.out.println("Connexion avec le client : " + socket.getInetAddress());
+            logger.info("Connexion avec le client : " + socket.getInetAddress());
 
             String clientRequest;
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -163,6 +186,7 @@ public class Server extends Thread {
 
             //Envoi au client le message : OK POP3 Server ready
             outToClient.writeBytes("+OK POP3 Server ready\n");
+            logger.info("+OK POP3 Server ready\n");
 
             while (statut != Statut.CLOSED) {
                 clientRequest = inFromClient.readLine();
@@ -171,6 +195,7 @@ public class Server extends Thread {
                     case AUTHORIZATION:
                         if (command[0].equals("APOP")) {
                             System.out.println("Commande recu :" + command[0]);
+                            logger.info("Commande recu :" + command[0]);
                             String login = command[1];
                             String password = command[2];
                             if (login.equals("user") && password.equals("epul")) {
@@ -180,52 +205,63 @@ public class Server extends Thread {
                                 lectureFichier();
                                 String mess = "+OK " + login + " Vous avez " + getNb_messages() + " message(s) " + getVolume_messages() + " octets" + " \n";
                                 System.out.println("Message envoyé :" + mess);
+                                logger.info("Message envoyé :" + mess);
                                 outToClient.writeBytes(mess);
                                 statut = Statut.TRANSACTION;
                             } else {
                                 String message_erreur_apop = "-ERR utilisateur invalide\n";
                                 System.out.println("Message envoyé :" + message_erreur_apop);
+                                logger.severe("Message envoyé :" + message_erreur_apop);
                                 outToClient.writeBytes(message_erreur_apop);
                             }
                         } else {
                             String erreur = "Commande non valide\n";
                             System.out.println("Message envoyé :" + erreur);
+                            logger.info("Message envoyé :" + erreur);
                             outToClient.writeBytes(erreur);
                         }
                         break;
                     case TRANSACTION:
                         if (command[0].equals("STAT")) {
                             System.out.println("Commande recu :" + command[0]);
+                            logger.info("Commande recu :" + command[0]);
                             //lecture du fichier pour recuperer le nombre de messages et leur taille
                             //String message_stat = "+OK" +lectureFichierNbMessage();
                             String message_stat = "+OK Vous avez " + getNb_messages() + " message(s) " + getVolume_messages() + " octets" + " \n";
                             outToClient.writeBytes(message_stat);
                             System.out.println("Message envoyé :" + message_stat);
+                            logger.info("Message envoyé :" + message_stat);
                         } else if (command[0].equals("RETR")) {
                             System.out.println("Commande recu :" + command[0] + command[1]);
+                            logger.info("Commande recu :" + command[0] + command[1]);
                             int numMessage = Integer.parseInt(command[1]);
                             if (numMessage <= nb_messages) {
                                 //String message = lectureMessage(numMessage) + " \n";
                                 String message = "+OK " + getMessages()[numMessage - 1] + " \n";
                                 outToClient.writeBytes(message);
                                 System.out.println("Message envoyé :" + message);
+                                logger.info("Message envoyé :" + message);
                             } else {
                                 String message_erreur = "-ERR Numero du message invalide. Seulement " + nb_messages + " messages dans le boite.\n";
                                 outToClient.writeBytes(message_erreur);
                                 System.out.println("Message envoyé :" + message_erreur);
+                                logger.severe("Message envoyé :" + message_erreur);
                             }
                             //outToClient.writeBytes(message);
                         } else if (command[0].equals("QUIT")) {
                             System.out.println("Commande recu :" + command[0]);
+                            logger.info("Commande recu :" + command[0]);
                             String response = "Au revoir\n";
                             outToClient.writeBytes(response);
                             System.out.println("Message envoyé :" + response);
+                            logger.info("Message envoyé :" + response);
                             statut = Statut.CLOSED;
                         }
                         break;
                 }
             }
             System.out.println("Fermeture de la session");
+            logger.info("Fermeture de la session");
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
