@@ -2,21 +2,22 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-import java.util.regex.Pattern;
 
 public class Server extends Thread {
 
@@ -24,9 +25,11 @@ public class Server extends Thread {
 
         AUTHORIZATION, TRANSACTION, CLOSED
     };
+    public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
     
-    Logger logger;  
-    FileHandler fh;  
+    private Logger logger;  
+    private FileHandler fh;  
+    
     
     final static int port = 3500;
     private static Socket socket;
@@ -35,6 +38,18 @@ public class Server extends Thread {
     private int nb_messages = 0;
     private int volume_messages = 0;
     private String messages[];
+    
+    private String timbreADate;
+    
+    private Map<String,String> users;
+
+    public String getTimbreADate() {
+        return timbreADate;
+    }
+
+    public void setTimbreADate(String timbreADate) {
+        this.timbreADate = timbreADate;
+    }
 
     public String[] getMessages() {
         return messages;
@@ -69,8 +84,12 @@ public class Server extends Thread {
             fh = new FileHandler("U:\\MyLogFile.log");  
             logger.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter);  
-
+            fh.setFormatter(formatter); 
+            
+            // add user
+            this.users = new HashMap<String,String>();
+            this.users.put("user", "epul");
+            
         } catch (SecurityException e) {  
             e.printStackTrace();  
         } catch (IOException e) {  
@@ -184,9 +203,10 @@ public class Server extends Thread {
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
 
+            this.timbreADate = now();
             //Envoi au client le message : OK POP3 Server ready
-            outToClient.writeBytes("+OK POP3 Server ready\n");
-            logger.info("+OK POP3 Server ready\n");
+            outToClient.writeBytes("+OK POP3 Server ready dat:" + this.timbreADate + "\n");
+            logger.info("+OK POP3 Server ready" + this.timbreADate + "\n");
 
             while (statut != Statut.CLOSED) {
                 clientRequest = inFromClient.readLine();
@@ -198,7 +218,7 @@ public class Server extends Thread {
                             logger.info("Commande recu :" + command[0]);
                             String login = command[1];
                             String password = command[2];
-                            if (login.equals("user") && password.equals("epul")) {
+                            if (users.containsKey(login) && checkUser(login,password)) {
                                 //Calcul du nombre de messages et leur taille
                                 //String mess = "+OK " + login + lectureFichierNbMessage();
                                 //Envoi au client le message : VerrouOK + le nombre de message dans le boite aux lettres
@@ -267,4 +287,30 @@ public class Server extends Thread {
             e.printStackTrace();
         }
     }
+    
+    private boolean checkUser(String login, String cryptMess){
+        String password = users.get(login);
+        String original = this.timbreADate+"<>"+password;
+        
+        MessageDigest md;
+        byte[] digest = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+            md.update(original.getBytes());
+            digest = md.digest();
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        // System.out.println("check --->  " + MessageDigest.isEqual(digest, cryptMess.getBytes());
+        return MessageDigest.isEqual(digest, cryptMess.getBytes());
+    }
+    
+    // Get the current time
+    public static String now() {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+        return sdf.format(cal.getTime());
+    }
+
+
 }
