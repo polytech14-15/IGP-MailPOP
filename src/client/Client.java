@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import server.Server;
@@ -22,6 +24,8 @@ public class Client {
     private boolean VerrouOK;
     private Socket client;
     private String errorMessage;
+    private String user;
+    private String password;
 
     public String getErrorMessage() {
         return errorMessage;
@@ -39,23 +43,27 @@ public class Client {
         this.errorMessage = "";
     }
 
-    public Client(String serverAdress, int serverPort, boolean VerrouOK) {
+    public Client(String serverAdress, int serverPort, boolean VerrouOK, String user, String password) {
         this.serverAdress = serverAdress;
         this.serverPort = serverPort;
         this.VerrouOK = VerrouOK;
         this.errorMessage = "";
         this.client = null;
+        this.user = user;
+        this.password = password;
     }
-
-    public static void main(String[] args) {
-        Client client = new Client("127.0.0.1", 3500, false);
-        client.start();
-    }
+//
+//    public static void main(String[] args) {
+//        Client client = new Client("127.0.0.1", 3500, false);
+//        client.start();
+//    }
 
     public String start() {
         try {
             //Etat Demarrage
+            String tad="";
             String request = "";
+            StringBuffer message = null;
             System.out.println("Demande de connexion");
             this.client = new Socket();
             this.client.connect(new InetSocketAddress(serverAdress, serverPort));
@@ -63,11 +71,27 @@ public class Client {
             BufferedReader inputStream = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
             String content = inputStream.readLine();
             System.out.println("Reponse Serveur :" + content);
-            if (content.equals("+OK POP3 Server ready")) {
+            if (content.startsWith("+OK POP3 Server ready tad:")) {
+                String[] tabString = content.split("tad:");
+                tad = tabString[1].split("\n")[0];
+                System.out.println("---------------------"+tad+"-----------------");
+                try {
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    md.update(password.getBytes()); 
+                    byte byteData[] = md.digest();
+                     //convert the byte to hex format method 1
+                    message = new StringBuffer();
+                    for (int i = 0; i < byteData.length; i++) {
+                     message.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+                    }
+                } catch (NoSuchAlgorithmException ex) {
+                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 //Etat Autorisation
                 int i = 0;
                 while (!VerrouOK && i < 3) {
-                    request = "APOP user epul\n";
+                    request = "APOP "+user+ " "+message.toString()+"\n";
+                    System.out.println("--------------------"+request+"----------------");
                     outputStream.writeBytes(request);
                     String Verrou = inputStream.readLine();
                     System.out.println("Reponse Serveur Verrou :" + Verrou);
