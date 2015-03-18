@@ -15,6 +15,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.crypto.Cipher;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import server.Server;
 
 public class Client {
@@ -22,7 +26,7 @@ public class Client {
     private final String serverAdress;
     private int serverPort;
     private boolean VerrouOK;
-    private Socket client;
+    private SSLSocket client;
     private String errorMessage;
     private String user;
     private String password;
@@ -65,8 +69,15 @@ public class Client {
             String request = "";
             StringBuffer message = null;
             System.out.println("Demande de connexion");
-            this.client = new Socket();
-            this.client.connect(new InetSocketAddress(serverAdress, serverPort));
+            SocketFactory fabrique = SSLSocketFactory.getDefault();
+            this.client = (SSLSocket) fabrique.createSocket(serverAdress, serverPort);
+            
+            for(int i=0;i<client.getEnabledCipherSuites().length;i++){
+                System.out.println("Cipher suite ("+i+"): "+client.getEnabledCipherSuites()[i]);
+            }
+            
+            client.setEnabledCipherSuites(client.getEnabledCipherSuites());
+            
             DataOutputStream outputStream = new DataOutputStream(this.client.getOutputStream());
             BufferedReader inputStream = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
             String content = inputStream.readLine();
@@ -74,7 +85,7 @@ public class Client {
             if (content.startsWith("+OK POP3 Server ready tad:")) {
                 String[] tabString = content.split("tad:");
                 tad = tabString[1].split("\n")[0];
-                System.out.println("---------------------"+tad+"-----------------");
+                System.out.println("TAD = "+tad);
                 try {
                     MessageDigest md = MessageDigest.getInstance("MD5");
                     String mes = tad + "<>"+ password;
@@ -92,7 +103,7 @@ public class Client {
                 int i = 0;
                 while (!VerrouOK && i < 3) {
                     request = "APOP "+user+ " "+message.toString()+"\n";
-                    System.out.println("--------------------"+request+"----------------");
+                    System.out.println("Message de connexion = "+request);
                     outputStream.writeBytes(request);
                     String Verrou = inputStream.readLine();
                     System.out.println("Reponse Serveur Verrou :" + Verrou);
