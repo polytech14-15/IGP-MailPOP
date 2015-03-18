@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,10 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 
 public class Server extends Thread {
 
@@ -31,7 +36,7 @@ public class Server extends Thread {
     private FileHandler fh;
 
     final static int port = 3500;
-    private static Socket socket;
+    private static SSLSocket socket;
     private Statut statut = Statut.AUTHORIZATION;
 
     private int nb_messages = 0;
@@ -74,9 +79,11 @@ public class Server extends Thread {
         this.volume_messages = volume_messages;
     }
 
-    public Server(Socket socket) {
+    public Server(SSLSocket socket) {
         this.socket = socket;
         this.logger = Logger.getLogger("MyLog");
+        
+  
 
         try {
             // This block configure the logger with handler and formatter  
@@ -124,11 +131,36 @@ public class Server extends Thread {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        ServerSocketFactory fabrique = SSLServerSocketFactory.getDefault();
+        SSLServerSocket serverSocket = null;
         try {
-            ServerSocket socketServeur = new ServerSocket(port);
+            serverSocket = (SSLServerSocket) fabrique.createServerSocket(port);
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        String[] cipherSuites = serverSocket.getSupportedCipherSuites();
+        ArrayList<String> suites = new ArrayList<String>();
+        for (int i = 0; i < cipherSuites.length; i++) {
+            if (cipherSuites[i].contains("anon")) {
+                System.out.println(cipherSuites[i]);
+                suites.add(cipherSuites[i]);
+            }
+        }
+        int i = 0; 
+        String[] test = new String[suites.size()];
+        test = suites.toArray(test);
+        serverSocket.setEnabledCipherSuites(test);
+        
+        
+        try {
+            
+            //ServerSocket socketServeur = new ServerSocket(port);
             System.out.println("Lancement du serveur");
             while (true) {
-                Socket socketClient = socketServeur.accept();
+                SSLSocket socketClient = (SSLSocket) serverSocket.accept();
+                socketClient.startHandshake();
                 Server t = new Server(socketClient);
                 t.start();
             }
