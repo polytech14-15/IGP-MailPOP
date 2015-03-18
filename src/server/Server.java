@@ -26,11 +26,10 @@ public class Server extends Thread {
         AUTHORIZATION, TRANSACTION, CLOSED
     };
     public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
-    
-    private Logger logger;  
-    private FileHandler fh;  
-    
-    
+
+    private Logger logger;
+    private FileHandler fh;
+
     final static int port = 3500;
     private static Socket socket;
     private Statut statut = Statut.AUTHORIZATION;
@@ -38,10 +37,10 @@ public class Server extends Thread {
     private int nb_messages = 0;
     private int volume_messages = 0;
     private String messages[];
-    
+
     private String timbreADate;
-    
-    private Map<String,String> users;
+
+    private Map<String, String> users;
 
     public String getTimbreADate() {
         return timbreADate;
@@ -78,23 +77,23 @@ public class Server extends Thread {
     public Server(Socket socket) {
         this.socket = socket;
         this.logger = Logger.getLogger("MyLog");
-        
-        try {  
+
+        try {
             // This block configure the logger with handler and formatter  
-            fh = new FileHandler("U:\\MyLogFile.log");  
+            fh = new FileHandler("U:\\MyLogFile.log");
             logger.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter); 
-            
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+
             // add user
-            this.users = new HashMap<String,String>();
+            this.users = new HashMap<String, String>();
             this.users.put("user", "epul");
-            
-        } catch (SecurityException e) {  
-            e.printStackTrace();  
-        } catch (IOException e) {  
-            e.printStackTrace();  
-        }  
+
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     //fonction de lecture de fichier 
@@ -121,59 +120,6 @@ public class Server extends Thread {
 
     }
 
-    //fonction de lecture de fichier pour recuperer le nombre des messages et leur tailles
-    /*public String lectureFichierNbMessage(){
-     int nbMessages = 0;
-     String message = "";
-     String fichier ="messagerie.txt";
-     try {
-     FileInputStream fich = new FileInputStream(fichier);
-     InputStream ips = fich;
-     //on recupere la taille des messages
-     setVolume_messages((int)fich.getChannel().size());
-     InputStreamReader ipsr = new InputStreamReader(ips);
-     BufferedReader br = new BufferedReader(ipsr);
-     String ligne;
-     while ((ligne = br.readLine()) != null) {
-     if (ligne.equals(".<CR><LF>")){
-     nbMessages++;
-     }
-     }
-     br.close();
-     setNb_messages(nbMessages);
-     message = " Vous avez " + getNb_messages() + " message(s) "+ getVolume_messages() +  "octets" + "\n";
-     return message;
-     } catch (Exception e) {
-     System.out.println(e.toString());
-     }
-     return null;
-     } 
-    
-     //fonction pour lire le fichier et recupere le message demandé
-     public String lectureMessage(int numMessage){
-     String messagerie = "";
-     String message = "";
-     String fichier ="messagerie.txt";
-     try {
-     FileInputStream fich = new FileInputStream(fichier);
-     InputStream ips = fich;
-     //on recupere la taille des messages
-     setVolume_messages((int)fich.getChannel().size());
-     InputStreamReader ipsr = new InputStreamReader(ips);
-     BufferedReader br = new BufferedReader(ipsr);
-     String ligne;
-     while ((ligne = br.readLine()) != null) {
-     messagerie = messagerie + ligne;
-     }
-     String messages[] = messagerie.split("\\.<CR><LF>");
-     message = messages[numMessage-1];
-     br.close();
-     return message;
-     } catch (Exception e) {
-     System.out.println(e.toString());
-     }
-     return null;
-     }*/
     /**
      * @param args the command line arguments
      */
@@ -205,7 +151,7 @@ public class Server extends Thread {
 
             this.timbreADate = now();
             //Envoi au client le message : OK POP3 Server ready
-            outToClient.writeBytes("+OK POP3 Server ready dat:" + this.timbreADate + "\n");
+            outToClient.writeBytes("+OK POP3 Server ready tad:" + this.timbreADate + "\n");
             logger.info("+OK POP3 Server ready" + this.timbreADate + "\n");
 
             while (statut != Statut.CLOSED) {
@@ -218,7 +164,7 @@ public class Server extends Thread {
                             logger.info("Commande recu :" + command[0]);
                             String login = command[1];
                             String password = command[2];
-                            if (users.containsKey(login) && checkUser(login,password)) {
+                            if (users.containsKey(login) && checkUser(login, password)) {
                                 //Calcul du nombre de messages et leur taille
                                 //String mess = "+OK " + login + lectureFichierNbMessage();
                                 //Envoi au client le message : VerrouOK + le nombre de message dans le boite aux lettres
@@ -287,11 +233,11 @@ public class Server extends Thread {
             e.printStackTrace();
         }
     }
-    
-    private boolean checkUser(String login, String cryptMess){
+
+    private boolean checkUser(String login, String cryptMess) {
         String password = users.get(login);
-        String original = this.timbreADate+"<>"+password;
-        
+        String original = this.timbreADate + "<>" + password;
+
         MessageDigest md;
         byte[] digest = null;
         try {
@@ -301,16 +247,19 @@ public class Server extends Thread {
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-        // System.out.println("check --->  " + MessageDigest.isEqual(digest, cryptMess.getBytes());
-        return MessageDigest.isEqual(digest, cryptMess.getBytes());
+        //convert the byte to hex format
+        StringBuffer hexDigest = new StringBuffer();
+        for (int i = 0; i < digest.length; i++) {
+            hexDigest.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return hexDigest.toString().equals(cryptMess);
     }
-    
+
     // Get the current time
     public static String now() {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
         return sdf.format(cal.getTime());
     }
-
 
 }
