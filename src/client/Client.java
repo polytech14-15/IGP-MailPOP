@@ -77,7 +77,8 @@ public class Client {
                 System.out.println("---------------------"+tad+"-----------------");
                 try {
                     MessageDigest md = MessageDigest.getInstance("MD5");
-                    md.update(password.getBytes()); 
+                    String mes = tad + "<>"+ password;
+                    md.update(mes.getBytes()); 
                     byte byteData[] = md.digest();
                      //convert the byte to hex format method 1
                     message = new StringBuffer();
