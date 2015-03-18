@@ -69,14 +69,10 @@ public class Client {
             String request = "";
             StringBuffer message = null;
             System.out.println("Demande de connexion");
-            SocketFactory fabrique = SSLSocketFactory.getDefault();
-            this.client = (SSLSocket) fabrique.createSocket(serverAdress, serverPort);
             
-            for(int i=0;i<client.getEnabledCipherSuites().length;i++){
-                System.out.println("Cipher suite ("+i+"): "+client.getEnabledCipherSuites()[i]);
-            }
-            
-            client.setEnabledCipherSuites(client.getEnabledCipherSuites());
+            SocketFactory fabrique = SSLSocketFactory.getDefault();            
+            this.client = (SSLSocket) fabrique.createSocket(serverAdress, serverPort);            
+            client.setEnabledCipherSuites(client.getSupportedCipherSuites());
             
             DataOutputStream outputStream = new DataOutputStream(this.client.getOutputStream());
             BufferedReader inputStream = new BufferedReader(new InputStreamReader(this.client.getInputStream()));
