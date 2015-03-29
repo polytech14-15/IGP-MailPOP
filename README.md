@@ -1,2 +1,0 @@
-# IGP-MailPOP
-IGP-MailPOP
