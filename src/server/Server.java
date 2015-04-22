@@ -31,7 +31,11 @@ public class Server extends Thread {
         AUTHORIZATION, TRANSACTION, CLOSED
     };
     public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
+    
+   public static final String MAILBOX = "C:\\Users\\p1305728\\Documents\\NetBeansProjects\\IGP-MailSMTP\\MailSMTP\\serverFile\\";
 
+    private String login;
+    
     private Logger logger;
     private FileHandler fh;
 
@@ -95,6 +99,8 @@ public class Server extends Thread {
             // add user
             this.users = new HashMap<String, String>();
             this.users.put("user", "epul");
+            this.users.put("john", "john");
+            this.users.put("mike", "mike");
 
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -108,7 +114,8 @@ public class Server extends Thread {
         String messagerie = "";
         String fichier = "MailBox.txt";
         try {
-            FileInputStream fich = new FileInputStream(fichier);
+            String file = MAILBOX+this.login+"\\"+fichier;
+            FileInputStream fich = new FileInputStream(file);
             InputStream ips = fich;
             //on recupere la taille des messages
             setVolume_messages((int) fich.getChannel().size());
@@ -200,10 +207,12 @@ public class Server extends Thread {
                                 //Calcul du nombre de messages et leur taille
                                 //String mess = "+OK " + login + lectureFichierNbMessage();
                                 //Envoi au client le message : VerrouOK + le nombre de message dans le boite aux lettres
+                                this.login = login;
                                 lectureFichier();
                                 String mess = "+OK " + login + " Vous avez " + getNb_messages() + " message(s) " + getVolume_messages() + " octets" + " \n";
                                 System.out.println("Message envoyé :" + mess);
                                 logger.info("Message envoyé :" + mess);
+                                
                                 outToClient.writeBytes(mess);
                                 statut = Statut.TRANSACTION;
                             } else {
